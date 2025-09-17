@@ -49,29 +49,29 @@ export default function SiteBackground() {
             {variant === "home" && (
                 <div className="absolute inset-0">
                     <div className="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-gradient-to-br from-cyan-400/40 via-blue-500/25 to-purple-500/20 blur-3xl"
-                         ref={(el) => el && (layersRef.current[0] = el)} />
+                         ref={(el) => { if (el) { layersRef.current[0] = el; } }} />
                     <div className="absolute -bottom-24 -right-24 h-[32rem] w-[32rem] rounded-full bg-gradient-to-tr from-fuchsia-400/30 via-violet-500/25 to-sky-400/20 blur-3xl"
-                         ref={(el) => el && (layersRef.current[1] = el)} />
+                         ref={(el) => { if (el) { layersRef.current[1] = el; } }} />
                     <div className="absolute top-1/2 left-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-emerald-400/25 via-teal-400/20 to-cyan-400/20 blur-3xl"
-                         ref={(el) => el && (layersRef.current[2] = el)} />
+                         ref={(el) => { if (el) { layersRef.current[2] = el; } }} />
                     <div className="absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.06)_100%)]" />
                 </div>
             )}
             {variant === "auth" && (
                 <div className="absolute inset-0">
                     <div className="absolute -top-32 left-1/4 h-96 w-96 -translate-x-1/2 rounded-full bg-gradient-to-br from-sky-500/35 via-indigo-500/25 to-purple-500/20 blur-3xl"
-                         ref={(el) => el && (layersRef.current[0] = el)} />
+                         ref={(el) => { if (el) { layersRef.current[0] = el; } }} />
                     <div className="absolute bottom-0 right-1/4 h-[22rem] w-[22rem] translate-x-1/2 rounded-full bg-gradient-to-tr from-teal-400/30 via-cyan-400/20 to-sky-400/20 blur-3xl"
-                         ref={(el) => el && (layersRef.current[1] = el)} />
+                         ref={(el) => { if (el) { layersRef.current[1] = el; } }} />
                     <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.08)_100%)]" />
                 </div>
             )}
             {variant === "default" && (
                 <div className="absolute inset-0">
                     <div className="absolute -top-24 right-0 h-[18rem] w-[18rem] rounded-full bg-gradient-to-br from-blue-400/20 via-violet-400/20 to-fuchsia-400/20 blur-3xl"
-                         ref={(el) => el && (layersRef.current[0] = el)} />
+                         ref={(el) => { if (el) { layersRef.current[0] = el; } }} />
                     <div className="absolute bottom-0 left-0 h-[20rem] w-[20rem] rounded-full bg-gradient-to-tr from-emerald-400/20 via-teal-400/20 to-cyan-400/20 blur-3xl"
-                         ref={(el) => el && (layersRef.current[1] = el)} />
+                         ref={(el) => { if (el) { layersRef.current[1] = el; } }} />
                     <div className="absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.05)_100%)]" />
                 </div>
             )}
