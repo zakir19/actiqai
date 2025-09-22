@@ -93,13 +93,18 @@ export default function Home() {
                   Capture every discussion, generate AI summaries and action items, and integrate with
                   Google Meet, Zoom, Microsoft Teams, Slack, Notion, and your CRM.
                 </p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <Button asChild>
-                    <Link href="/signup">Get started</Link>
+                <div className="flex flex-col items-center gap-4">
+                  <Button size="lg" className="w-full max-w-xs text-lg py-6" asChild>
+                    <Link href="/get-started">Get Started</Link>
                   </Button>
-                  <Button variant="secondary" asChild>
-                    <Link href="#features">See features</Link>
-                  </Button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button variant="secondary" asChild>
+                      <Link href="/signup">Sign up</Link>
+                    </Button>
+                    <Button variant="secondary" asChild>
+                      <Link href="#features">See features</Link>
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-muted-foreground text-sm">
                   Secure cloud processing. Hybrid deployments for privacy-conscious organizations.

@@ -54,9 +54,9 @@ export function GSAPAuthBackground(props: GSAPAuthBackgroundProps) {
             }
             aria-hidden
         >
-            <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-gradient-to-br from-cyan-400/40 via-blue-500/30 to-purple-500/20 blur-3xl" ref={(el) => el && (blobRefs.current[0] = el)} />
-            <div className="absolute -bottom-16 -right-16 h-96 w-96 rounded-full bg-gradient-to-br from-fuchsia-400/30 via-violet-500/25 to-sky-400/20 blur-3xl" ref={(el) => el && (blobRefs.current[1] = el)} />
-            <div className="absolute top-1/2 left-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-emerald-400/30 via-teal-400/25 to-cyan-400/20 blur-3xl" ref={(el) => el && (blobRefs.current[2] = el)} />
+            <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-gradient-to-br from-cyan-400/40 via-blue-500/30 to-purple-500/20 blur-3xl" ref={(el) => { if (el) blobRefs.current[0] = el; }} />
+            <div className="absolute -bottom-16 -right-16 h-96 w-96 rounded-full bg-gradient-to-br from-fuchsia-400/30 via-violet-500/25 to-sky-400/20 blur-3xl" ref={(el) => { if (el) blobRefs.current[1] = el; }} />
+            <div className="absolute top-1/2 left-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-emerald-400/30 via-teal-400/25 to-cyan-400/20 blur-3xl" ref={(el) => { if (el) blobRefs.current[2] = el; }} />
             <div className="absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.08)_100%)]" />
         </div>
     );

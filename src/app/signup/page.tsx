@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import Image from "next/image";
 import { gsap } from "gsap";
 import GSAPAuthBackground from "@/components/auth/gsap-auth-bg";
 
@@ -56,9 +55,7 @@ export default function SignupPage() {
         );
     };
 
-    const handleSocial = (provider: "google" | "github") => {
-        window.location.href = `/api/auth/sign-in?provider=${provider}`;
-    };
+
 
     if (session) {
         return (
@@ -103,8 +100,8 @@ export default function SignupPage() {
                             </Button>
                             <div className="my-1"><Separator /></div>
                             <div className="grid grid-cols-2 gap-2">
-                                <Button variant="outline" onClick={() => handleSocial("google")}>Google</Button>
-                                <Button variant="outline" onClick={() => handleSocial("github")}>Github</Button>
+                                <Button variant="outline" onClick={() => authClient.signIn.social({ provider: "google" })}>Google</Button>
+                                <Button variant="outline" onClick={() => authClient.signIn.social({ provider: "github" })}>Github</Button>
                             </div>
                             <p className="text-muted-foreground text-center text-sm">
                                 Already have an account? <Link className="underline" href="/login">Sign in</Link>

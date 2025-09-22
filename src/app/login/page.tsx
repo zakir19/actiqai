@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import Image from "next/image";
 import { gsap } from "gsap";
 import GSAPAuthBackground from "@/components/auth/gsap-auth-bg";
 
@@ -54,8 +53,9 @@ export default function LoginPage() {
     };
 
     const handleSocial = (provider: "google" | "github") => {
-        window.location.href = `/api/auth/sign-in?provider=${provider}`;
+        window.location.href = `/api/auth/signin/${provider}`;
     };
+
 
     if (session) {
         return (
