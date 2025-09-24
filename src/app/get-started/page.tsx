@@ -2,24 +2,103 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AuroraBackgroundDemo } from "@/components/ui/aurora-background-demo";
+import { Sidebar,
+        SidebarContent,
+        SidebarFooter,
+        SidebarGroup,
+        SidebarGroupContent,
+        SidebarGroupLabel,
+        SidebarHeader,
+        SidebarInset,
+        SidebarMenu,
+        SidebarMenuButton,
+        SidebarMenuItem,
+        SidebarProvider,
+        SidebarRail,
+        SidebarSeparator,
+        SidebarTrigger } from "@/components/ui/sidebar";
+import { BotIcon, StarIcon, VideoIcon } from "lucide-react";
+import { DashboardUserButton } from "./dashboard-user-button";
 
-export default function GetStarted() {
+const firstSection = [
+  {
+    icon: VideoIcon,
+    label: "Meetings",
+    href: "/meetings",
+    
+  },
+  {
+    icon: BotIcon,
+    label: "Agents",
+    href: "/agents",
+  }
+];
+const secondSection =[
+  {
+    icon: StarIcon,
+    label: "Upgrade",
+    href: "/upgrade",
+    
+  }
+];
+
+export default function GetStartedPage() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="font-semibold">Actiq AI</Link>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" asChild>
-              <Link href="/">Back to Home</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarHeader className="text-sidebar-accent-foreground">
+          <Link href="/" className="flex items-center gap-2 px-1 pt-2">
+            <img src="/actiq_lg.png" height={40} width={40} alt="Actiq.AI" />
+            <span className="text-sm font-semibold">Actiq.AI</span>
+          </Link>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel className="px-2">Menu</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {firstSection.map((item) => (
+                  <SidebarMenuItem key={item.label}>
+                    <SidebarMenuButton asChild>
+                      <Link href={item.href} className="flex items-center gap-2">
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-      <main className="flex-1">
+          <SidebarSeparator />
+
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {secondSection.map((item) => (
+                  <SidebarMenuItem key={item.label}>
+                    <SidebarMenuButton asChild>
+                      <Link href={item.href} className="flex items-center gap-2">
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter className="text-black">
+          <DashboardUserButton />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+
+      <SidebarInset>
         <AuroraBackgroundDemo />
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
