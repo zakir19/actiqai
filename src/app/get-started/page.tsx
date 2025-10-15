@@ -19,6 +19,7 @@ import { Sidebar,
         SidebarTrigger } from "@/components/ui/sidebar";
 import { BotIcon, StarIcon, VideoIcon } from "lucide-react";
 import { DashboardUserButton } from "./dashboard-user-button";
+import { DashboardNavbar } from "./dashboard-navbar";
 
 const firstSection = [
   {
@@ -97,6 +98,7 @@ export default function GetStartedPage() {
       </Sidebar>
 
       <SidebarInset>
+        <DashboardNavbar />
         <AuroraBackgroundDemo />
       </SidebarInset>
     </SidebarProvider>
