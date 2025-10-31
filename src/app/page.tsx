@@ -7,11 +7,56 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import GSAPAuthBackground from "@/components/auth/gsap-auth-bg";
 import { authClient } from "@/lib/auth-client";
+import { Spotlight } from "@/components/ui/spotlight";
+import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
+import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { LampContainer } from "@/components/ui/lamp";
+import { motion } from "framer-motion";
+import { 
+  Sparkles, 
+  Shield, 
+  Zap, 
+  Users, 
+  Bot, 
+  FileText, 
+  Video, 
+  Lock,
+  Globe,
+  TrendingUp 
+} from "lucide-react";
 
 export default function Home() {
   const { data: session } = authClient.useSession();
+
+  const testimonials = [
+    {
+      quote: "Actiq AI turned chaotic meetings into clear action plans. The summaries are spot on and save us hours every week.",
+      name: "Sarah Chen",
+      title: "Product Lead, SaaS Startup",
+    },
+    {
+      quote: "Security features fit our compliance needs perfectly. Deployment took less than a week and the team loves it.",
+      name: "Michael Rodriguez",
+      title: "IT Director, Fintech",
+    },
+    {
+      quote: "Seamless integration with Slack and Notion. Our teams actually use it daily, which is rare for new tools.",
+      name: "Emily Thompson",
+      title: "Ops Manager, Enterprise",
+    },
+    {
+      quote: "The AI summaries are incredibly accurate. It's like having a dedicated note-taker in every meeting.",
+      name: "David Park",
+      title: "Engineering Manager, Tech Co",
+    },
+    {
+      quote: "Action items are automatically extracted and synced to our project management tools. Game changer!",
+      name: "Lisa Anderson",
+      title: "Project Manager, Agency",
+    },
+  ];
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -39,37 +84,42 @@ export default function Home() {
     }
   }, []);
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="font-semibold">Actiq AI</Link>
-          <nav className="hidden items-center gap-10 sm:flex sm:gap-16">
-            <Link href="#features" className="text-muted-foreground hover:text-foreground">Features</Link>
-            <Link href="#how" className="text-muted-foreground hover:text-foreground">How it works</Link>
-            <Link href="#security" className="text-muted-foreground hover:text-foreground">Security</Link>
-            <Link href="#pricing" className="text-muted-foreground hover:text-foreground">Pricing</Link>
+    <div className="flex min-h-screen flex-col bg-slate-950">
+      <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-white">
+            <div className="h-8 w-8 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">A</span>
+            </div>
+            Actiq AI
+          </Link>
+          <nav className="hidden items-center gap-8 sm:flex">
+            <Link href="#features" className="text-slate-400 hover:text-white transition-colors font-medium">Features</Link>
+            <Link href="#how" className="text-slate-400 hover:text-white transition-colors font-medium">How it works</Link>
+            <Link href="#security" className="text-slate-400 hover:text-white transition-colors font-medium">Security</Link>
+            <Link href="#pricing" className="text-slate-400 hover:text-white transition-colors font-medium">Pricing</Link>
           </nav>
           <div className="flex items-center gap-3">
             {session ? (
               <>
-                <span className="text-sm text-muted-foreground">
-                  Welcome, {session.user.name}
+                <span className="text-sm text-slate-400">
+                  Welcome, <span className="font-semibold text-white">{session.user.name}</span>
                 </span>
-                <Button variant="outline" onClick={() => authClient.signOut()}>
+                <Button variant="outline" onClick={() => authClient.signOut()} className="border-slate-700 hover:bg-slate-800 text-slate-300">
                   Sign out
                 </Button>
               </>
             ) : (
               <>
-            <Button variant="secondary" asChild>
-              <Link href="#pricing">View pricing</Link>
-            </Button>
-                <Button variant="outline" asChild>
+                <Button variant="ghost" asChild className="text-slate-400 hover:text-white">
+                  <Link href="#pricing">View pricing</Link>
+                </Button>
+                <Button variant="outline" asChild className="border-slate-700 hover:bg-slate-800 text-slate-300">
                   <Link href="/login">Log in</Link>
                 </Button>
-                <Button variant="outline" asChild>
+                <Button asChild className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200">
                   <Link href="/signup">Sign up</Link>
-            </Button>
+                </Button>
               </>
             )}
           </div>
@@ -77,371 +127,383 @@ export default function Home() {
       </header>
 
       <main className="flex flex-1 flex-col">
-        <section className="relative overflow-hidden">
-          <GSAPAuthBackground />
-          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-            <div className="grid items-center gap-10 md:grid-cols-2">
+        {/* Hero Section - UnKey Style */}
+        <section className="relative overflow-hidden border-b border-slate-700 bg-slate-950 min-h-[90vh] flex items-center">
+          <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
+          
+          {/* Animated background elements */}
+          <div className="absolute inset-0 overflow-hidden opacity-20">
+            <div className="absolute top-20 left-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-20 relative z-10 w-full">
+            <div className="text-center space-y-12">
+              {/* Main Heading - Large and Bold */}
               <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
-                  <span className="h-2 w-2 rounded-full bg-green-500" />
-                  Live AI meeting intelligence
-                </div>
-                <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-                  Actiq AI — meeting intelligence for enterprise collaboration
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-white leading-tight">
+                  The Meeting Platform
+                  <br />
+                  <span className="text-slate-400">for Modern Teams</span>
                 </h1>
-                <p className="text-muted-foreground text-lg">
-                  Capture every discussion, generate AI summaries and action items, and integrate with
-                  Google Meet, Zoom, Microsoft Teams, Slack, Notion, and your CRM.
-                </p>
-                <div className="flex flex-col items-center gap-4">
-                  <Button size="lg" className="w-full max-w-xs text-lg py-6" asChild>
-                    <Link href="/get-started">Get Started</Link>
-                  </Button>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Button variant="secondary" asChild>
-                      <Link href="/signup">Sign up</Link>
-                    </Button>
-                    <Button variant="secondary" asChild>
-                      <Link href="#features">See features</Link>
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-muted-foreground text-sm">
-                  Secure cloud processing. Hybrid deployments for privacy-conscious organizations.
-                </p>
               </div>
-              <div className="relative">
-                <div id="hero-image" className="rounded-xl border bg-card p-4 shadow-sm">
-                  <Image src="/logo.png" alt="Actiq AI" width={800} height={600} className="w-full" />
-                </div>
-                <div className="pointer-events-none absolute -right-8 -top-8 hidden rotate-6 sm:block">
-                  <div className="rounded-xl border bg-card p-2 shadow-sm">
-                    <Image src="/logo.png" alt="Actiq AI window" width={260} height={180} />
-                  </div>
+
+              {/* Subtitle */}
+              <p className="text-lg sm:text-xl lg:text-2xl text-slate-400 max-w-4xl mx-auto leading-relaxed">
+                Easily integrate necessary meeting features like AI summaries, action items,
+                and real-time transcription, ensuring your meetings are ready to scale.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex items-center justify-center gap-4 pt-4">
+                <Button size="lg" className="bg-white hover:bg-slate-100 text-slate-900 text-base px-8 py-6 rounded-lg font-semibold shadow-lg" asChild>
+                  <Link href="/meetings">
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Get started
+                  </Link>
+                </Button>
+                <Button size="lg" variant="ghost" className="text-white hover:bg-slate-800 text-base px-8 py-6 rounded-lg font-semibold border border-slate-700" asChild>
+                  <Link href="#features">
+                    <FileText className="mr-2 h-5 w-5" />
+                    Documentation
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Dashboard Preview */}
+              <div className="pt-12 max-w-6xl mx-auto">
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-2 shadow-2xl backdrop-blur-xl">
+                  <Image src="/logo.png" alt="Actiq AI Dashboard" width={1200} height={800} className="w-full rounded-xl" />
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="border-t">
-          <div className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-              <span className="rounded-md border px-3 py-1">Trusted by distributed teams</span>
-              <span className="rounded-md border px-3 py-1">SOC 2 in progress</span>
-              <span className="rounded-md border px-3 py-1">GDPR-ready</span>
-              <span className="rounded-md border px-3 py-1">SSO / SAML</span>
+        <section className="border-b border-slate-800 bg-slate-950">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-12">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
+              <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1">Trusted by distributed teams</span>
+              <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1">SOC 2 in progress</span>
+              <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1">GDPR-ready</span>
+              <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1">SSO / SAML</span>
             </div>
           </div>
         </section>
 
-        <section id="features" className="border-t">
-          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Everything your meetings need</h2>
-              <p className="text-muted-foreground mt-3">
+        {/* Features Section with Bento Grid */}
+        <section id="features" className="border-b border-slate-800 bg-slate-950">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
+            <div className="mx-auto max-w-3xl text-center mb-16">
+              <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                Everything your meetings need
+              </h2>
+              <p className="text-xl text-slate-400 mt-6 leading-relaxed">
                 Real-time transcription, AI-powered summaries, action item extraction, speaker ID, and collaborative notes.
               </p>
             </div>
 
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Real-time transcription</CardTitle>
-                  <CardDescription>Accurate live captions powered by modern speech engines.</CardDescription>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Works across major video platforms with domain-tuned models for clarity.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>AI summaries</CardTitle>
-                  <CardDescription>Custom prompts reflect your internal workflows.</CardDescription>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Generate concise briefs, decisions, risks, and follow-ups instantly.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Action items</CardTitle>
-                  <CardDescription>Auto-extract owners, due dates, and next steps.</CardDescription>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Push to Jira, Asana, Trello, or your CRM with a click.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Speaker identification</CardTitle>
-                  <CardDescription>Know who said what and when.</CardDescription>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Accurate diarization with organizational directories for better context.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Keyword highlights</CardTitle>
-                  <CardDescription>Surface key moments automatically.</CardDescription>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Jump to decisions, risks, metrics, and blockers from transcripts.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Collaborative notes</CardTitle>
-                  <CardDescription>Capture shared context in one place.</CardDescription>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Real-time editing with role-based access and version history.
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="mt-16 grid items-center gap-6 sm:grid-cols-2">
-              <div className="rounded-xl border bg-card p-4 shadow-sm">
-                <Image src="/logo.png" alt="Transcript and highlights" width={900} height={640} className="w-full" />
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-2xl font-semibold">Beautiful summaries and actionable insights</h3>
-                <p className="text-muted-foreground">
-                  Actiq AI turns conversation into decisions, owners, and next steps. Customize the output with prompts that reflect your workflow.
-                </p>
-                <div className="grid grid-cols-2 gap-3 text-sm text-muted-foreground">
-                  <div className="rounded-lg border p-3">
-                    <div className="font-medium text-foreground">Decisions</div>
-                    Key calls, risks, dependencies.
+            <BentoGrid className="max-w-6xl mx-auto">
+              <BentoGridItem
+                title="Real-time Transcription"
+                description="Accurate live captions powered by modern speech engines across all platforms."
+                header={
+                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 items-center justify-center">
+                    <Video className="h-12 w-12 text-white" />
                   </div>
-                  <div className="rounded-lg border p-3">
-                    <div className="font-medium text-foreground">Action items</div>
-                    Owners, due dates, next steps.
+                }
+                icon={<Zap className="h-4 w-4 text-blue-500" />}
+                className="md:col-span-2"
+              />
+              <BentoGridItem
+                title="AI Summaries"
+                description="Custom prompts reflect your internal workflows with instant briefs."
+                header={
+                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 items-center justify-center">
+                    <Bot className="h-12 w-12 text-white" />
                   </div>
-                  <div className="rounded-lg border p-3">
-                    <div className="font-medium text-foreground">Highlights</div>
-                    Keywords and key moments.
+                }
+                icon={<Sparkles className="h-4 w-4 text-purple-500" />}
+                className="md:col-span-1"
+              />
+              <BentoGridItem
+                title="Action Items"
+                description="Auto-extract owners, due dates, and next steps with CRM integration."
+                header={
+                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 items-center justify-center">
+                    <FileText className="h-12 w-12 text-white" />
                   </div>
-                  <div className="rounded-lg border p-3">
-                    <div className="font-medium text-foreground">Integrations</div>
-                    Sync to Slack, Notion, CRM.
+                }
+                icon={<TrendingUp className="h-4 w-4 text-green-500" />}
+                className="md:col-span-1"
+              />
+              <BentoGridItem
+                title="Speaker Identification"
+                description="Know who said what with accurate diarization and org directories."
+                header={
+                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-orange-500 to-red-500 items-center justify-center">
+                    <Users className="h-12 w-12 text-white" />
                   </div>
-                </div>
-              </div>
-            </div>
+                }
+                icon={<Users className="h-4 w-4 text-orange-500" />}
+                className="md:col-span-2"
+              />
+              <BentoGridItem
+                title="Enterprise Security"
+                description="SOC 2, GDPR-ready, SSO/SAML with audit logs and role-based access."
+                header={
+                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 items-center justify-center">
+                    <Shield className="h-12 w-12 text-white" />
+                  </div>
+                }
+                icon={<Lock className="h-4 w-4 text-cyan-500" />}
+                className="md:col-span-1"
+              />
+              <BentoGridItem
+                title="Global Integrations"
+                description="Connect to Google Meet, Zoom, Teams, Slack, Notion, and your CRM."
+                header={
+                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 items-center justify-center">
+                    <Globe className="h-12 w-12 text-white" />
+                  </div>
+                }
+                icon={<Globe className="h-4 w-4 text-indigo-500" />}
+                className="md:col-span-2"
+              />
+            </BentoGrid>
           </div>
         </section>
 
-        <section id="how" className="border-t">
-          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
+        <section id="how" className="border-b border-slate-800 bg-slate-950">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">How it works</h2>
-              <p className="text-muted-foreground mt-3">Deploy in days, scale across the organization.</p>
+              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl text-white">How it works</h2>
+              <p className="text-slate-400 mt-3">Deploy in days, scale across the organization.</p>
             </div>
             <div className="mt-12 grid gap-6 sm:grid-cols-3">
-              <Card>
+              <Card className="bg-slate-900/50 border-slate-800">
                 <CardHeader>
-                  <CardTitle>1. Connect</CardTitle>
-                  <CardDescription>Link video platforms, calendars, and chat tools.</CardDescription>
+                  <CardTitle className="text-white">1. Connect</CardTitle>
+                  <CardDescription className="text-slate-400">Link video platforms, calendars, and chat tools.</CardDescription>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">SSO, SCIM, role-based access ready.</CardContent>
+                <CardContent className="text-sm text-slate-400">SSO, SCIM, role-based access ready.</CardContent>
               </Card>
-              <Card>
+              <Card className="bg-slate-900/50 border-slate-800">
                 <CardHeader>
-                  <CardTitle>2. Capture</CardTitle>
-                  <CardDescription>Transcribe and analyze conversations in real-time.</CardDescription>
+                  <CardTitle className="text-white">2. Capture</CardTitle>
+                  <CardDescription className="text-slate-400">Transcribe and analyze conversations in real-time.</CardDescription>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">Speaker ID, keywords, decisions, and risks.</CardContent>
+                <CardContent className="text-sm text-slate-400">Speaker ID, keywords, decisions, and risks.</CardContent>
               </Card>
-              <Card>
+              <Card className="bg-slate-900/50 border-slate-800">
                 <CardHeader>
-                  <CardTitle>3. Act</CardTitle>
-                  <CardDescription>Push action items to where work happens.</CardDescription>
+                  <CardTitle className="text-white">3. Act</CardTitle>
+                  <CardDescription className="text-slate-400">Push action items to where work happens.</CardDescription>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">Sync to Slack, Notion, Jira, and CRM.</CardContent>
+                <CardContent className="text-sm text-slate-400">Sync to Slack, Notion, Jira, and CRM.</CardContent>
               </Card>
             </div>
           </div>
         </section>
 
-        <section id="security" className="border-t">
-          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
+        <section id="security" className="border-b border-slate-800 bg-slate-950">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
             <div className="grid items-start gap-8 sm:grid-cols-2">
               <div className="space-y-4">
-                <h3 className="text-2xl font-semibold">Security and privacy</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-2xl font-semibold text-white">Security and privacy</h3>
+                <p className="text-slate-400">
                   Enterprise-grade security with least-privilege access. Data encrypted in transit and at rest.
                   Optional regional data residency and hybrid deployments.
                 </p>
-                <ul className="text-muted-foreground grid list-disc gap-2 pl-5 text-sm">
+                <ul className="text-slate-400 grid list-disc gap-2 pl-5 text-sm">
                   <li>SSO/SAML, SCIM user provisioning</li>
                   <li>Audit logs, role-based access controls</li>
                   <li>PII redaction and retention policies</li>
                 </ul>
               </div>
               <div className="space-y-4">
-                <h3 className="text-2xl font-semibold">Enterprise-ready integrations</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-2xl font-semibold text-white">Enterprise-ready integrations</h3>
+                <p className="text-slate-400">
                   Connect to Google Meet, Zoom, Microsoft Teams, Slack, Notion, Salesforce, and more.
                   Build on our APIs and webhooks to extend Actiq AI in your workflows.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <span className="rounded-md border px-3 py-1 text-sm">Google Meet</span>
-                  <span className="rounded-md border px-3 py-1 text-sm">Zoom</span>
-                  <span className="rounded-md border px-3 py-1 text-sm">Microsoft Teams</span>
-                  <span className="rounded-md border px-3 py-1 text-sm">Slack</span>
-                  <span className="rounded-md border px-3 py-1 text-sm">Notion</span>
-                  <span className="rounded-md border px-3 py-1 text-sm">Salesforce</span>
+                  <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1 text-sm text-slate-300">Google Meet</span>
+                  <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1 text-sm text-slate-300">Zoom</span>
+                  <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1 text-sm text-slate-300">Microsoft Teams</span>
+                  <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1 text-sm text-slate-300">Slack</span>
+                  <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1 text-sm text-slate-300">Notion</span>
+                  <span className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1 text-sm text-slate-300">Salesforce</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="pricing" className="border-t">
-          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-            <div className="mx-auto max-w-2xl text-center">
-              <h3 className="text-3xl font-semibold tracking-tight sm:text-4xl">Simple, scalable pricing</h3>
-              <p className="text-muted-foreground mt-3">Start free. Upgrade as you scale.</p>
-            </div>
-            <div className="mt-12 grid gap-6 sm:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Starter</CardTitle>
-                  <CardDescription>For small teams getting started</CardDescription>
+        {/* Pricing Section with Lamp Effect */}
+        <section id="pricing" className="border-b border-slate-200 dark:border-slate-700 relative overflow-hidden bg-slate-950">
+          <LampContainer className="min-h-screen py-20">
+            <motion.h1
+              initial={{ opacity: 0.5, y: 100 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: 0.3,
+                duration: 0.8,
+                ease: "easeInOut",
+              }}
+              className="bg-linear-to-br from-white to-slate-300 py-4 bg-clip-text text-center text-4xl font-bold tracking-tight text-transparent md:text-6xl"
+            >
+              Simple, scalable pricing
+            </motion.h1>
+            <p className="text-slate-300 text-center mt-6 text-xl mb-12 font-medium">Start free. Upgrade as you scale.</p>
+            
+            <div className="grid gap-8 sm:grid-cols-3 max-w-6xl mx-auto px-4 relative z-50">
+              {/* Starter Plan */}
+              <Card className="relative overflow-hidden border-2 border-slate-700/50 bg-slate-900/90 backdrop-blur-xl shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 hover:-translate-y-2">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-2xl font-bold text-white">Starter</CardTitle>
+                  <CardDescription className="text-slate-300 text-base mt-2">For small teams getting started</CardDescription>
                 </CardHeader>
-                <CardContent className="text-sm">
-                  <div className="text-3xl font-semibold">$0</div>
-                  <ul className="text-muted-foreground mt-4 grid list-disc gap-2 pl-5">
-                    <li>Up to 5 users</li>
-                    <li>Transcription and summaries</li>
-                    <li>Basic integrations</li>
+                <CardContent className="text-sm space-y-6">
+                  <div className="space-y-2">
+                    <div className="text-5xl font-bold text-white">$0</div>
+                    <p className="text-slate-400">Free forever</p>
+                  </div>
+                  <ul className="text-slate-300 space-y-3 text-base">
+                    <li className="flex items-start gap-3">
+                      <Sparkles className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                      <span>Up to 5 users</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Sparkles className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                      <span>Transcription and summaries</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Sparkles className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                      <span>Basic integrations</span>
+                    </li>
                   </ul>
-                  <div className="mt-6">
-                    <Button className="w-full" asChild>
+                  <div className="pt-4">
+                    <Button className="w-full h-12 text-base font-semibold bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg" asChild>
                       <Link href="/signup">Get started</Link>
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Growth</CardTitle>
-                  <CardDescription>For fast-growing teams</CardDescription>
+
+              {/* Growth Plan - Featured */}
+              <Card className="relative overflow-hidden border-2 border-cyan-500 bg-slate-900/95 backdrop-blur-xl shadow-2xl shadow-cyan-500/30 scale-105 hover:scale-110 transition-all duration-300">
+                <div className="absolute top-0 right-0 bg-linear-to-r from-cyan-500 to-blue-500 text-white text-sm px-4 py-2 rounded-bl-xl font-bold shadow-lg">
+                  ⭐ POPULAR
+                </div>
+                <CardHeader className="pb-4 pt-8">
+                  <CardTitle className="text-2xl font-bold text-white">Growth</CardTitle>
+                  <CardDescription className="text-slate-200 text-base mt-2 font-medium">For fast-growing teams</CardDescription>
                 </CardHeader>
-                <CardContent className="text-sm">
-                  <div className="text-3xl font-semibold">$29<span className="text-base font-normal">/user</span></div>
-                  <ul className="text-muted-foreground mt-4 grid list-disc gap-2 pl-5">
-                    <li>Unlimited users</li>
-                    <li>Action items and speaker ID</li>
-                    <li>Advanced integrations</li>
+                <CardContent className="text-sm space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl font-bold text-white">$29</span>
+                      <span className="text-xl font-medium text-slate-300">/user</span>
+                    </div>
+                    <p className="text-slate-300">Per month, billed annually</p>
+                  </div>
+                  <ul className="text-slate-200 space-y-3 text-base">
+                    <li className="flex items-start gap-3">
+                      <Zap className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                      <span>Unlimited users</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Zap className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                      <span>Action items and speaker ID</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Zap className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                      <span>Advanced integrations</span>
+                    </li>
                   </ul>
-                  <div className="mt-6">
-                    <Button className="w-full" asChild>
+                  <div className="pt-4">
+                    <Button className="w-full h-12 text-base font-semibold bg-cyan-500 hover:bg-cyan-600 text-white shadow-lg shadow-cyan-500/50" asChild>
                       <Link href="/signup">Start trial</Link>
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Enterprise</CardTitle>
-                  <CardDescription>Bespoke security and support</CardDescription>
+
+              {/* Enterprise Plan */}
+              <Card className="relative overflow-hidden border-2 border-slate-700/50 bg-slate-900/90 backdrop-blur-xl shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 hover:-translate-y-2">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-2xl font-bold text-white">Enterprise</CardTitle>
+                  <CardDescription className="text-slate-300 text-base mt-2">Bespoke security and support</CardDescription>
                 </CardHeader>
-                <CardContent className="text-sm">
-                  <div className="text-3xl font-semibold">Custom</div>
-                  <ul className="text-muted-foreground mt-4 grid list-disc gap-2 pl-5">
-                    <li>SSO/SAML, SCIM</li>
-                    <li>Data residency and hybrid</li>
-                    <li>Dedicated support and SLAs</li>
+                <CardContent className="text-sm space-y-6">
+                  <div className="space-y-2">
+                    <div className="text-5xl font-bold text-white">Custom</div>
+                    <p className="text-slate-400">Tailored to your needs</p>
+                  </div>
+                  <ul className="text-slate-300 space-y-3 text-base">
+                    <li className="flex items-start gap-3">
+                      <Shield className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
+                      <span>SSO/SAML, SCIM</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Shield className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
+                      <span>Data residency and hybrid</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Shield className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
+                      <span>Dedicated support and SLAs</span>
+                    </li>
                   </ul>
-                  <div className="mt-6">
-                    <Button variant="secondary" className="w-full" asChild>
+                  <div className="pt-4">
+                    <Button variant="outline" className="w-full h-12 text-base font-semibold border-2 border-slate-600 hover:border-slate-500 bg-slate-800/50 hover:bg-slate-800 text-black" asChild>
                       <Link href="#">Contact sales</Link>
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             </div>
+          </LampContainer>
+        </section>
 
-            <div className="mt-12 grid items-center gap-6 sm:grid-cols-2">
-              <div className="space-y-4">
-                <h4 className="text-xl font-semibold">Why teams choose Actiq AI</h4>
-                <ul className="text-muted-foreground grid list-disc gap-2 pl-5 text-sm">
-                  <li>Enterprise-grade security and privacy controls</li>
-                  <li>Reliable AI summaries grounded in transcripts</li>
-                  <li>Seamless integrations with your existing tools</li>
-                </ul>
-              </div>
-              <div className="rounded-xl border bg-card p-4 shadow-sm">
-                <div className="grid grid-cols-3 gap-4 opacity-80">
-                  <Image src="/logo.png" alt="Actiq AI" width={120} height={120} />
-                  <Image src="/logo.png" alt="Actiq AI" width={120} height={120} />
-                  <Image src="/logo.png" alt="Actiq AI" width={120} height={120} />
-                </div>
-              </div>
+        {/* Testimonials with Infinite Moving Cards */}
+        <section className="border-b border-slate-800 bg-slate-950 py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="mx-auto max-w-2xl text-center mb-12">
+              <h3 className="text-3xl font-semibold tracking-tight sm:text-4xl text-white">Loved by teams worldwide</h3>
+              <p className="text-slate-400 mt-3">What customers say about Actiq AI</p>
             </div>
+            <InfiniteMovingCards
+              items={testimonials}
+              direction="right"
+              speed="slow"
+            />
           </div>
         </section>
 
-        <section className="border-t">
-          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
+        <section className="border-b border-slate-800 bg-slate-950">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
             <div className="mx-auto max-w-2xl text-center">
-              <h3 className="text-3xl font-semibold tracking-tight sm:text-4xl">Loved by teams</h3>
-              <p className="text-muted-foreground mt-3">What customers say about Actiq AI</p>
-            </div>
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <Card>
-                <CardContent className="pt-6 text-sm">
-                  “Actiq AI turned chaotic meetings into clear action plans. The summaries are spot on.”
-                  <div className="mt-4 text-muted-foreground">— Product Lead, SaaS</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-sm">
-                  “Security features fit our compliance needs. Deployment took less than a week.”
-                  <div className="mt-4 text-muted-foreground">— IT Director, Fintech</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-sm">
-                  “Seamless integration with Slack and Notion. Our teams actually use it.”
-                  <div className="mt-4 text-muted-foreground">— Ops Manager, Enterprise</div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        <section className="border-t">
-          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-            <div className="mx-auto max-w-2xl text-center">
-              <h3 className="text-3xl font-semibold tracking-tight sm:text-4xl">Frequently asked questions</h3>
-              <p className="text-muted-foreground mt-3">Everything you need to know</p>
+              <h3 className="text-3xl font-semibold tracking-tight sm:text-4xl text-white">Frequently asked questions</h3>
+              <p className="text-slate-400 mt-3">Everything you need to know</p>
             </div>
             <div className="mx-auto mt-8 max-w-2xl">
               <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="q1">
-                  <AccordionTrigger>How does Actiq AI handle data security?</AccordionTrigger>
-                  <AccordionContent>
+                <AccordionItem value="q1" className="border-slate-800">
+                  <AccordionTrigger className="text-white hover:text-slate-300">How does Actiq AI handle data security?</AccordionTrigger>
+                  <AccordionContent className="text-slate-400">
                     We encrypt data in transit and at rest, support SSO/SAML, and provide RBAC and audit logs.
                   </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="q2">
-                  <AccordionTrigger>Can we customize AI summaries?</AccordionTrigger>
-                  <AccordionContent>
+                <AccordionItem value="q2" className="border-slate-800">
+                  <AccordionTrigger className="text-white hover:text-slate-300">Can we customize AI summaries?</AccordionTrigger>
+                  <AccordionContent className="text-slate-400">
                     Yes. Use custom prompts to mirror your workflows and emphasis areas.
                   </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="q3">
-                  <AccordionTrigger>Do you support hybrid deployments?</AccordionTrigger>
-                  <AccordionContent>
+                <AccordionItem value="q3" className="border-slate-800">
+                  <AccordionTrigger className="text-white hover:text-slate-300">Do you support hybrid deployments?</AccordionTrigger>
+                  <AccordionContent className="text-slate-400">
                     We support hybrid models for privacy-sensitive organizations and regional data residency.
                   </AccordionContent>
                 </AccordionItem>
@@ -450,18 +512,18 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-t">
-          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-            <div className="rounded-xl border bg-gradient-to-br from-secondary to-background p-8 text-center">
-              <h3 className="text-2xl font-semibold">Ready to transform your meetings?</h3>
-              <p className="text-muted-foreground mt-2">
+        <section className="border-b border-slate-800 bg-slate-950">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-8 text-center backdrop-blur-xl">
+              <h3 className="text-2xl font-semibold text-white">Ready to transform your meetings?</h3>
+              <p className="text-slate-400 mt-2">
                 Start with a secure trial and deploy organization-wide in days.
               </p>
               <div className="mt-6 flex items-center justify-center gap-3">
-                <Button asChild>
+                <Button className="bg-white text-black hover:bg-slate-200" asChild>
                   <Link href="/signup">Start free</Link>
                 </Button>
-                <Button variant="secondary" asChild>
+                <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-white" asChild>
                   <Link href="#">Contact sales</Link>
                 </Button>
               </div>
@@ -470,47 +532,64 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t">
-        <div className="mx-auto grid w-full max-w-6xl gap-8 px-6 py-10 sm:grid-cols-4">
-          <div className="space-y-2">
-            <div className="font-semibold">Actiq AI</div>
-            <p className="text-muted-foreground text-sm">Meeting intelligence for enterprises.</p>
-            <div className="mt-4 flex gap-2">
-              <Button size="sm" variant="outline" asChild>
+      <footer className="border-t border-slate-800 bg-slate-950">
+        <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 sm:px-6 py-16 sm:grid-cols-4">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">A</span>
+              </div>
+              <span className="font-bold text-xl text-white">Actiq AI</span>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed">Meeting intelligence for enterprises. Transform your meetings into actionable insights.</p>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" asChild className="border-slate-700 hover:bg-slate-800 text-slate-300">
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button size="sm" asChild>
+              <Button size="sm" asChild className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                 <Link href="/signup">Sign up</Link>
               </Button>
             </div>
           </div>
           <div className="text-sm">
-            <div className="font-medium">Product</div>
-            <ul className="mt-2 grid gap-2 text-muted-foreground">
-              <li><Link href="#features">Features</Link></li>
-              <li><Link href="#pricing">Pricing</Link></li>
-              <li><Link href="#security">Security</Link></li>
+            <div className="font-semibold text-white mb-4">Product</div>
+            <ul className="grid gap-3 text-slate-400">
+              <li><Link href="#features" className="hover:text-white transition-colors">Features</Link></li>
+              <li><Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+              <li><Link href="#security" className="hover:text-white transition-colors">Security</Link></li>
+              <li><Link href="#how" className="hover:text-white transition-colors">How it works</Link></li>
             </ul>
           </div>
           <div className="text-sm">
-            <div className="font-medium">Company</div>
-            <ul className="mt-2 grid gap-2 text-muted-foreground">
-              <li><Link href="#">Contact</Link></li>
-              <li><Link href="#">Status</Link></li>
-              <li><Link href="#">Privacy</Link></li>
+            <div className="font-semibold text-white mb-4">Company</div>
+            <ul className="grid gap-3 text-slate-400">
+              <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Status</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Privacy</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Terms</Link></li>
             </ul>
           </div>
           <div className="text-sm">
-            <div className="font-medium">Resources</div>
-            <ul className="mt-2 grid gap-2 text-muted-foreground">
-              <li><Link href="#how">How it works</Link></li>
-              <li><Link href="#">Docs</Link></li>
-              <li><Link href="#">Changelog</Link></li>
+            <div className="font-semibold text-white mb-4">Resources</div>
+            <ul className="grid gap-3 text-slate-400">
+              <li><Link href="#" className="hover:text-white transition-colors">Documentation</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">API Reference</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Changelog</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Support</Link></li>
             </ul>
           </div>
         </div>
-        <div className="border-t py-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Actiq AI. All rights reserved.
+        
+        {/* UnKey Style Section at Footer */}
+        <div className="border-t border-slate-800 relative overflow-hidden">
+          <div className="relative flex items-center justify-center py-20 min-h-[300px]">
+            {/* Large Background Text */}
+            <h2 className="absolute text-[100px] sm:text-[140px] lg:text-[180px] xl:text-[220px] font-black leading-none tracking-tighter text-center">
+              <span className="bg-linear-to-b from-slate-300 via-slate-400 to-slate-700 bg-clip-text text-transparent opacity-10 select-none">
+                Actiq AI
+              </span>
+            </h2>
+          </div>
         </div>
       </footer>
     </div>
