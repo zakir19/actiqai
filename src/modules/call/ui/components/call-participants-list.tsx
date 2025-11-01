@@ -31,7 +31,7 @@ export const CallParticipantsList = () => {
                 publishedTracks: [],
                 isSpeaking: false,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                custom: { isAgent: true, agentType: "gemini" } as any,
+                custom: { isAgent: true } as any,
             } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
         }
     }
