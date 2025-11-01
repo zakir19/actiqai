@@ -1,132 +1,48 @@
-import { and, eq, not } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
-import { CallEndedEvent, CallTranscriptionReadyEvent, CallSessionParticipantLeftEvent, CallRecordingReadyEvent, CallSessionStartedEvent } from "@stream-io/node-sdk";
-
-import { db } from "@/db";
-import { agents, meetings } from "@/db/schema";
 import { streamVideo } from "@/lib/stream-video";
-import { inngest } from "@/inngest/client";
+import { startGeminiAgent } from "@/lib/gemini-agent";
+import { db } from "@/db"; // Assuming you have a DB setup
+import { agents } from "@/db/schema"; // Assuming a schema
+import { eq } from "drizzle-orm";
+import { trpc } from "@/trpc/server"; // Import your tRPC server helper
 
-function verifySignatureWithSDK(body: string, signature: string): boolean {
-    return streamVideo.verifyWebhook(body, signature);
-}
+// This assumes you have a tRPC caller setup, if not, you can call the API
+// This example will use a direct DB lookup for simplicity.
 
-export async function POST(req: NextRequest) {
-    const signature = req.headers.get("x-signature");
-    const apiKey = req.headers.get("x-api-key");
+export async function POST(req: Request) {
+  const body = await req.json();
+  const event = streamVideo.readEvent(req.headers, body);
 
-    if (!signature || !apiKey) {
-        return NextResponse.json({ error: "Missing signature or API key" }, { status: 400 });
+  if (event.type === "call.created") {
+    console.log(`Call created: ${event.call_cid}`);
+    const callId = event.call.id;
+    
+    // Example: Find the agent associated with this meeting
+    // You would customize this logic based on your app
+    // For this example, let's find an agent named "ActiqAI Assistant"
+    const existingAgent = await db.query.agents.findFirst({
+        where: eq(agents.name, "ActiqAI Assistant"),
+    });
+
+    if (existingAgent) {
+      // 1. Get a token for the agent using our new tRPC logic
+      // This is a simplified way to call your tRPC procedure from the server
+      const { token } = await trpc.ai.getAgentToken.mutate({
+        agentId: existingAgent.id,
+        agentName: existingAgent.name,
+      });
+
+      // 2. Start the agent
+      await startGeminiAgent({
+        callId: callId,
+        agentToken: token,
+        agentId: existingAgent.id,
+        agentName: existingAgent.name,
+        agentInstructions: existingAgent.instructions,
+      });
+    } else {
+      console.warn("No default agent found for the call.");
     }
+  }
 
-    const body = await req.text();
-
-    if (!verifySignatureWithSDK(body, signature)) {
-        return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-    }
-
-    let payload: unknown;
-    try {
-        payload = JSON.parse(body) as Record<string, unknown>;
-    } catch {
-        return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-    }
-
-    const eventType = (payload as Record<string, unknown>)?.type;
-
-    if (eventType === "call.session_started") {
-        const event = payload as CallSessionStartedEvent;
-        const meetingId = event.call.custom?.meetingId;
-
-        if (!meetingId) {
-            return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
-        }
-
-        const [existingMeeting] = await db
-            .select()
-            .from(meetings)
-            .where(and(eq(meetings.id, meetingId), not(eq(meetings.status, "completed")), not(eq(meetings.status, "active")), not(eq(meetings.status, "cancelled")), not(eq(meetings.status, "processing"))));
-
-        if (!existingMeeting) {
-            return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
-        }
-
-        await db.update(meetings).set({ status: "active", startedAt: new Date() }).where(eq(meetings.id, existingMeeting.id));
-
-        const [existingAgent] = await db.select().from(agents).where(eq(agents.id, existingMeeting.agentId));
-
-        if (!existingAgent) {
-            return NextResponse.json({ error: "Agent not found" }, { status: 404 });
-        }
-
-        const call = streamVideo.video.call("default", meetingId);
-        const realtimeClient = await streamVideo.video.connectOpenAi({
-            call,
-            openAiApiKey: process.env.OPENAI_API_KEY!,
-            agentUserId: existingAgent.id,
-        });
-
-        realtimeClient.updateSession({
-            instructions: existingAgent.instructions,
-        });
-    } else if (eventType === "call.session_participant_left") {
-        const event = payload as CallSessionParticipantLeftEvent;
-        const meetingId = event.call_cid.split(":")[1];
-
-        if (!meetingId) {
-            return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
-        }
-
-        const call = streamVideo.video.call("default", meetingId);
-        await call.end();
-    } else if (eventType === "call.session_ended") {
-        const event = payload as CallEndedEvent;
-        const meetingId = event.call.custom?.meetingId;
-
-        if (!meetingId) {
-            return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
-        }
-        await db
-            .update(meetings)
-            .set({
-                status: "processing",
-                endedAt: new Date(),
-            })
-            .where(and(eq(meetings.id, meetingId), eq(meetings.status, "active")));
-    } else if (eventType === "call.transcription_ready") {
-        const event = payload as CallTranscriptionReadyEvent;
-        const meetingId = event.call_cid.split(":")[1];
-
-        const [updatedMeeting] = await db
-            .update(meetings)
-            .set({
-                transcriptUrl: event.call_transcription.url,
-            })
-            .where(eq(meetings.id, meetingId))
-            .returning();
-
-        if (!updatedMeeting) {
-            return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
-        }
-
-        await inngest.send({
-            name: "meetings/processing",
-            data: {
-                meetingId: updatedMeeting.id,
-                transcriptUrl: updatedMeeting.transcriptUrl,
-            },
-        });
-    } else if (eventType === "call.recording_ready") {
-        const event = payload as CallRecordingReadyEvent;
-        const meetingId = event.call_cid.split(":")[1];
-
-        await db
-            .update(meetings)
-            .set({
-                recordingUrl: event.call_recording.url,
-            })
-            .where(eq(meetings.id, meetingId));
-    }
-
-    return NextResponse.json({ status: "ok" });
+  return new Response("Webhook processed", { status: 200 });
 }
