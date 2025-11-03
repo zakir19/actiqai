@@ -7,7 +7,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 import JSONL from "jsonl-parse-stringify";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
 const SUMMARIZER_SYSTEM_PROMPT = `You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
 
@@ -34,61 +34,108 @@ export const meetingsProcessing = inngest.createFunction(
     { event: "meetings/processing" },
 
     async ({ event, step }) => {
-        const response = await step.run("fetch-transcript", async () => {
-            return fetch(event.data.transcriptUrl).then((res) => res.text());
-        });
-        const transcript = await step.run("parse-transcript", async () => {
-            return JSONL.parse<StreamTranscriptItem>(response);
-        });
+        // Check if this is a LiveKit meeting (has transcript) or Stream meeting (has transcriptUrl)
+        const isLiveKitMeeting = !event.data.transcriptUrl && event.data.meetingId;
+        
+        let transcriptWithSpeakers;
 
-        const transcriptWithSpeakers = await step.run("add-speakers", async () => {
-            const speakerIds = [...new Set(transcript.map((item) => item.speaker_id))];
+        if (isLiveKitMeeting) {
+            // LiveKit meeting: Get transcript from database
+            transcriptWithSpeakers = await step.run("fetch-livekit-transcript", async () => {
+                const [meeting] = await db
+                    .select()
+                    .from(meetings)
+                    .where(eq(meetings.id, event.data.meetingId));
 
-            const userSpeakers = await db
-                .select()
-                .from(user)
-                .where(inArray(user.id, speakerIds))
-                .then((users) =>
-                    users.map((user) => ({
-                        ...user,
-                    }))
-                );
+                if (!meeting || !meeting.transcript) {
+                    console.error("[Inngest] No transcript found for meeting:", event.data.meetingId);
+                    return [];
+                }
 
-            const agentSpeakers = await db
-                .select()
-                .from(agents)
-                .where(inArray(agents.id, speakerIds))
-                .then((agents) => agents.map((agent) => ({ ...agent })));
+                try {
+                    const transcript = JSON.parse(meeting.transcript);
+                    return transcript.map((entry: { speaker: string; text: string; timestamp: string }) => ({
+                        speaker_id: entry.speaker === "User" ? meeting.userId : meeting.agentId,
+                        text: entry.text,
+                        timestamp: entry.timestamp,
+                        user: {
+                            name: entry.speaker,
+                        },
+                    }));
+                } catch (e) {
+                    console.error("[Inngest] Failed to parse transcript:", e);
+                    return [];
+                }
+            });
+        } else {
+            // Stream.io meeting: Use existing flow
+            const response = await step.run("fetch-transcript", async () => {
+                return fetch(event.data.transcriptUrl).then((res) => res.text());
+            });
+            
+            const transcript = await step.run("parse-transcript", async () => {
+                return JSONL.parse<StreamTranscriptItem>(response);
+            });
 
-            const speakers = [...userSpeakers, ...agentSpeakers];
+            transcriptWithSpeakers = await step.run("add-speakers", async () => {
+                const speakerIds = [...new Set(transcript.map((item) => item.speaker_id))];
 
-            return transcript.map((item) => {
-                const speaker = speakers.find((speaker) => speaker.id === item.speaker_id);
+                const userSpeakers = await db
+                    .select()
+                    .from(user)
+                    .where(inArray(user.id, speakerIds))
+                    .then((users) =>
+                        users.map((user) => ({
+                            ...user,
+                        }))
+                    );
 
-                if (!speaker) {
+                const agentSpeakers = await db
+                    .select()
+                    .from(agents)
+                    .where(inArray(agents.id, speakerIds))
+                    .then((agents) => agents.map((agent) => ({ ...agent })));
+
+                const speakers = [...userSpeakers, ...agentSpeakers];
+
+                return transcript.map((item) => {
+                    const speaker = speakers.find((speaker) => speaker.id === item.speaker_id);
+
+                    if (!speaker) {
+                        return {
+                            ...item,
+                            user: {
+                                name: "Unknown",
+                            },
+                        };
+                    }
+
                     return {
                         ...item,
                         user: {
-                            name: "Unknown",
+                            name: speaker.name,
                         },
                     };
-                }
-
-                return {
-                    ...item,
-                    user: {
-                        name: speaker.name,
-                    },
-                };
+                });
             });
-        });
+        }
 
         const summary = await step.run("generate-summary", async () => {
-            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+            if (!transcriptWithSpeakers || transcriptWithSpeakers.length === 0) {
+                return "## No Conversation\n\nThis meeting ended without any recorded conversation. The meeting was started but no dialogue was captured.";
+            }
+
+            const model = genAI.getGenerativeModel({ 
+                model: "gemini-2.0-flash-exp",
+                generationConfig: {
+                    temperature: 0.7,
+                    topP: 0.9,
+                },
+            });
             
             const result = await model.generateContent([
                 { text: SUMMARIZER_SYSTEM_PROMPT },
-                { text: "Summarize the following transcript:" + JSON.stringify(transcriptWithSpeakers) }
+                { text: "Summarize the following transcript:\n\n" + JSON.stringify(transcriptWithSpeakers, null, 2) }
             ]);
             
             return result.response.text();

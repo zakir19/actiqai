@@ -8,9 +8,10 @@ import { CallEnded } from "./call-ended";
 
 interface Props {
     meetingName: string;
+    meetingId: string;
 }
 
-export const CallUI = ({ meetingName }: Props) => {
+export const CallUI = ({ meetingName, meetingId }: Props) => {
     const call = useCall();
     const [show, setShow] = useState<"lobby" | "call" | "ended">("lobby");
 
@@ -21,10 +22,20 @@ export const CallUI = ({ meetingName }: Props) => {
 
         setShow("call");
     };
-    const handleLeave = () => {
+    const handleLeave = async () => {
         if (!call) return;
 
         call.endCall();
+        
+        // Mark meeting as processing and trigger summary
+        try {
+            await fetch(`/api/meetings/${meetingId}/end`, {
+                method: "POST",
+            });
+        } catch (error) {
+            console.error("Error ending meeting:", error);
+        }
+        
         setShow("ended");
     };
 

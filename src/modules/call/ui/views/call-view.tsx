@@ -25,6 +25,17 @@ export const CallView = ({ meetingId }: Props) => {
         );
     }
 
+    if (data.status === "cancelled") {
+        return (
+            <div className='flex h-screen items-center justify-center'>
+                <ErrorState
+                    title='Meeting was cancelled'
+                    description='This meeting has been cancelled and is no longer available'
+                />
+            </div>
+        );
+    }
+
     return (
         <div className=''>
             <CallProvider meetingId={meetingId} meetingName={data.name} />

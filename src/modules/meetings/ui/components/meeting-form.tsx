@@ -23,6 +23,16 @@ import { useState } from "react";
 import { CommandSelect } from "@/components/command-select";
 import GenerateAvatar from "@/components/generate-avatar";
 import { NewAgentDialog } from "@/modules/agents/ui/components/new-agents-dialog";
+import { MultiStepLoader } from "@/components/ui/multi-step-loader";
+
+const loadingStates = [
+    { text: "Creating your meeting room..." },
+    { text: "Setting up AI agent..." },
+    { text: "Configuring audio settings..." },
+    { text: "Initializing video streams..." },
+    { text: "Preparing meeting environment..." },
+    { text: "Almost ready to join..." },
+];
 
 interface MeetingFormProps {
     onSuccess?: (id?: string) => void;
@@ -105,6 +115,7 @@ export const MeetingForm = ({
 
     return (
         <>
+            <MultiStepLoader loadingStates={loadingStates} loading={isPending} duration={1000} loop={false} />
             <NewAgentDialog
                 open={openNewAgentDialog}
                 onOpenChange={setOpenNewAgentDialog}

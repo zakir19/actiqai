@@ -23,6 +23,11 @@ const Page = async ({ params }: Props) => {
         redirect("/sign-in");
     }
 
+    // Optional: route Stream call join to LiveKit page so AI agent auto-joins
+    if (process.env.NEXT_PUBLIC_USE_LIVEKIT === "true") {
+        redirect(`/lk/${meetingId}`);
+    }
+
     const queryClient = getQueryClient();
     void queryClient.prefetchQuery(trpc.meetings.getOne.queryOptions({ id: meetingId }));
 
