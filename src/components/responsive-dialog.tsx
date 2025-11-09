@@ -1,4 +1,4 @@
-import { type ReactNode, useId } from "react";
+import { type ReactNode } from "react";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -14,7 +14,6 @@ interface ResponsiveDialogProps {
 
 export const ResponsiveDialog = ({ title, description, children, open, onOpenChange }: ResponsiveDialogProps) => {
   const isMobile = useIsMobile();
-  const titleId = useId();
 
   if (isMobile) {
     return (
