@@ -121,6 +121,10 @@
         "@next/swc-linux-x64-gnu": "15.3.2",
         "@next/swc-linux-x64-musl": "15.3.2",
         "lightningcss-linux-x64-gnu": "^1.28.2",
-        "lightningcss-linux-x64-musl": "^1.28.2"
+        "lightningcss-linux-x64-musl": "^1.28.2",
+        "@tailwindcss/oxide-linux-x64-gnu": "^4.1.7",
+        "@tailwindcss/oxide-linux-x64-musl": "^4.1.7",
+        "@tailwindcss/oxide-linux-arm64-gnu": "^4.1.7",
+        "@tailwindcss/oxide-linux-arm64-musl": "^4.1.7"
     }
 }
