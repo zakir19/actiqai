@@ -2,13 +2,9 @@
 const nextConfig = {
   output: 'standalone',
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: false,
   },
   typescript: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has type errors.
     ignoreBuildErrors: false,
   },
   images: {
@@ -24,8 +20,19 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
   },
-  outputFileTracingIncludes: {
-    '/api/**/*': ['./node_modules/**/*.wasm', './node_modules/**/*.node'],
+  // Use Edge Runtime by default to avoid serverless function limits
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'x-runtime',
+            value: 'edge',
+          },
+        ],
+      },
+    ];
   },
 };
 
