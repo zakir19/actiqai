@@ -198,11 +198,24 @@ export function VoiceAgent({ botRoom, meetingId }: VoiceAgentProps) {
         }
       };
 
-      recognition.onerror = () => {
+      recognition.onerror = (event: any) => {
+        console.error("[Voice Agent] Speech recognition error:", event.error);
         setIsListening(false);
+        
+        // Show user-friendly error messages
+        if (event.error === 'no-speech') {
+          alert("No speech detected. Please try again and speak clearly.");
+        } else if (event.error === 'not-allowed') {
+          alert("Microphone access denied. Please allow microphone permissions and try again.");
+        } else if (event.error === 'network') {
+          alert("Network error. Please check your internet connection.");
+        } else {
+          alert(`Speech recognition error: ${event.error}`);
+        }
       };
 
       recognition.onend = () => {
+        console.log("[Voice Agent] Speech recognition ended");
         setIsListening(false);
       };
 
