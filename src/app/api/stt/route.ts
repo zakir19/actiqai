@@ -6,8 +6,23 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.DEEPGRAM_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "missing DEEPGRAM_API_KEY" }, { status: 500 });
 
-    const contentType = req.headers.get("content-type") || "audio/webm";
-    const body = Buffer.from(await req.arrayBuffer());
+    let body: Buffer;
+    let contentType = "audio/webm";
+
+    // Handle both FormData and direct binary
+    const reqContentType = req.headers.get("content-type") || "";
+    if (reqContentType.includes("multipart/form-data")) {
+      const formData = await req.formData();
+      const audioFile = formData.get("audio") as Blob;
+      if (!audioFile) {
+        return NextResponse.json({ error: "missing audio file" }, { status: 400 });
+      }
+      body = Buffer.from(await audioFile.arrayBuffer());
+      contentType = audioFile.type || "audio/webm";
+    } else {
+      body = Buffer.from(await req.arrayBuffer());
+      contentType = reqContentType || "audio/webm";
+    }
 
     const res = await fetch("https://api.deepgram.com/v1/listen?model=nova-2", {
       method: "POST",
@@ -15,7 +30,7 @@ export async function POST(req: NextRequest) {
         Authorization: `Token ${apiKey}`,
         "Content-Type": contentType,
       },
-      body,
+      body: body as unknown as BodyInit,
     });
 
     if (!res.ok) {

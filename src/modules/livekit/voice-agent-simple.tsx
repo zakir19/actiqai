@@ -12,18 +12,8 @@ interface AgentContext {
   agentInstructions: string;
 }
 
-// Extend Window interface for Web Speech API
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    SpeechRecognition: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    webkitSpeechRecognition: any;
-  }
-}
-
 /**
- * Voice Agent: Uses browser's Web Speech API for STT,
+ * Voice Agent: Uses MediaRecorder + Deepgram STT API,
  * sends to Gemini AI with agent instructions,
  * and speaks response via Deepgram TTS in LiveKit room.
  */
@@ -32,16 +22,10 @@ export function VoiceAgent({ botRoom, meetingId }: VoiceAgentProps) {
   const [transcript, setTranscript] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [agentContext, setAgentContext] = useState<AgentContext | null>(null);
-  const [supportsSTT, setSupportsSTT] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null);
+  const [supportsSTT, setSupportsSTT] = useState(true); // MediaRecorder is widely supported
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   const TTS_VOICE = process.env.NEXT_PUBLIC_DEEPGRAM_TTS_VOICE as string | undefined;
-
-  // Check if browser supports Speech Recognition
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    setSupportsSTT(!!SpeechRecognition);
-  }, []);
 
   // Fetch agent context on mount
   useEffect(() => {
@@ -151,84 +135,97 @@ export function VoiceAgent({ botRoom, meetingId }: VoiceAgentProps) {
     }
   }, [botRoom, TTS_VOICE, publishAudioToRoom, agentContext, meetingId]);
 
-  // Start/stop listening
-  const toggleListening = useCallback(() => {
-    if (!supportsSTT) {
-      alert("Speech recognition is not supported in your browser. Please use Chrome or Edge.");
-      return;
-    }
-
+  // Start/stop listening with MediaRecorder + Deepgram
+  const toggleListening = useCallback(async () => {
     if (isListening) {
       // Stop listening
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+        mediaRecorderRef.current.stop();
       }
       setIsListening(false);
     } else {
       // Start listening
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = "en-US";
-
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      recognition.onresult = (event: any) => {
-        let interimTranscript = "";
-        let finalTranscript = "";
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript + " ";
-          } else {
-            interimTranscript += transcript;
-          }
-        }
-
-        if (finalTranscript) {
-          handleUserSpeech(finalTranscript.trim());
-        } else if (interimTranscript) {
-          setTranscript(interimTranscript);
-        }
-      };
-
-      recognition.onerror = (event: any) => {
-        console.error("[Voice Agent] Speech recognition error:", event.error);
-        setIsListening(false);
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         
-        // Show user-friendly error messages
-        if (event.error === 'no-speech') {
-          alert("No speech detected. Please try again and speak clearly.");
-        } else if (event.error === 'not-allowed') {
-          alert("Microphone access denied. Please allow microphone permissions and try again.");
-        } else if (event.error === 'network') {
-          alert("Network error. Please check your internet connection.");
-        } else {
-          alert(`Speech recognition error: ${event.error}`);
-        }
-      };
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm;codecs=opus'
+        });
+        
+        audioChunksRef.current = [];
 
-      recognition.onend = () => {
-        console.log("[Voice Agent] Speech recognition ended");
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm;codecs=opus' });
+          
+          // Send to Deepgram API
+          try {
+            const formData = new FormData();
+            formData.append('audio', audioBlob);
+            
+            const response = await fetch('/api/stt', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              const transcribedText = data.transcript || "";
+              
+              if (transcribedText.trim()) {
+                await handleUserSpeech(transcribedText.trim());
+              } else {
+                setTranscript("No speech detected");
+              }
+            } else {
+              console.error("[Voice Agent] STT API error:", response.status);
+              alert("Failed to transcribe audio. Please try again.");
+            }
+          } catch (error) {
+            console.error("[Voice Agent] STT error:", error);
+            alert("Error transcribing audio. Please try again.");
+          }
+
+          // Stop all tracks
+          stream.getTracks().forEach(track => track.stop());
+          setIsListening(false);
+        };
+
+        mediaRecorder.onerror = (event) => {
+          console.error("[Voice Agent] MediaRecorder error:", event);
+          alert("Recording error. Please check microphone permissions.");
+          setIsListening(false);
+        };
+
+        mediaRecorder.start();
+        mediaRecorderRef.current = mediaRecorder;
+        setIsListening(true);
+
+        // Auto-stop after 10 seconds to prevent infinite recording
+        setTimeout(() => {
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+            mediaRecorderRef.current.stop();
+          }
+        }, 10000);
+
+      } catch (error) {
+        console.error("[Voice Agent] Microphone access error:", error);
+        alert("Microphone access denied. Please allow microphone permissions and try again.");
         setIsListening(false);
-      };
-
-      recognition.start();
-      recognitionRef.current = recognition;
+      }
     }
-  }, [isListening, supportsSTT, handleUserSpeech]);
+  }, [isListening, handleUserSpeech]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+        mediaRecorderRef.current.stop();
       }
     };
   }, []);
