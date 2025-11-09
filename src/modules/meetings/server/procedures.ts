@@ -30,6 +30,12 @@ import { streamChat } from "@/lib/stream-chat";
 
 export const meetingsRouter = createTRPCRouter({
     generateChatToken: protectedProcedure.mutation(async ({ ctx }) => {
+        if (!streamChat) {
+            throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Stream Chat not configured",
+            });
+        }
         const token = streamChat.createToken(ctx.auth.user.id);
         await streamChat.upsertUser({
             id: ctx.auth.user.id,
@@ -134,6 +140,12 @@ export const meetingsRouter = createTRPCRouter({
             return transcriptWithSpeakers;
         }),
     generateToken: protectedProcedure.mutation(async ({ ctx }) => {
+        if (!streamVideo) {
+            throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Stream Video not configured",
+            });
+        }
         await streamVideo.upsertUsers([
             {
                 id: ctx.auth.user.id,
@@ -234,6 +246,13 @@ export const meetingsRouter = createTRPCRouter({
     create: protectedProcedure
         .input(meetingsInsertSchema)
         .mutation(async ({ input, ctx }) => {
+            if (!streamVideo) {
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Stream Video not configured",
+                });
+            }
+
             const [createdMeetings] = await db
                 .insert(meetings)
                 .values({ ...input, userId: ctx.auth.user.id })

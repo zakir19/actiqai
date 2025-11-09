@@ -8,6 +8,9 @@ import { streamVideo } from "@/lib/stream-video";
 import { inngest } from "@/inngest/client";
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
+    if (!streamVideo) {
+        throw new Error("Stream Video client not initialized");
+    }
     return streamVideo.verifyWebhook(body, signature);
 }
 
@@ -67,6 +70,10 @@ export async function POST(req: NextRequest) {
 
         if (!meetingId) {
             return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
+        }
+
+        if (!streamVideo) {
+            return NextResponse.json({ error: "Stream Video not configured" }, { status: 500 });
         }
 
         const call = streamVideo.video.call("default", meetingId);
