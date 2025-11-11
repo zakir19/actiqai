@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { useTRPC } from "@/trpc/client";
 
@@ -19,11 +21,11 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
-import { useState } from "react";
 import { CommandSelect } from "@/components/command-select";
 import GenerateAvatar from "@/components/generate-avatar";
 import { NewAgentDialog } from "@/modules/agents/ui/components/new-agents-dialog";
 import { MultiStepLoader } from "@/components/ui/multi-step-loader";
+import { LimitReachedPopup } from "@/modules/premium/ui/components/limit-popup";
 
 const loadingStates = [
     { text: "Creating your meeting room..." },
@@ -47,9 +49,11 @@ export const MeetingForm = ({
 }: MeetingFormProps) => {
     const trpc = useTRPC();
     const queryClient = useQueryClient();
+    const router = useRouter();
 
     const [openNewAgentDialog, setOpenNewAgentDialog] = useState(false);
     const [agentSearch, setAgentSearch] = useState("");
+    const [showLimitPopup, setShowLimitPopup] = useState(false);
 
     const agents = useQuery(
         trpc.agents.getMany.queryOptions({
@@ -68,7 +72,12 @@ export const MeetingForm = ({
                 onSuccess?.(data.id);
             },
             onError: (error) => {
-                toast.message(error.message);
+                // Check if this is a limit error
+                if (error.data?.code === "FORBIDDEN") {
+                    setShowLimitPopup(true);
+                } else {
+                    toast.message(error.message);
+                }
             },
         }),
     );
@@ -115,6 +124,12 @@ export const MeetingForm = ({
 
     return (
         <>
+            <LimitReachedPopup
+                isOpen={showLimitPopup}
+                onClose={() => setShowLimitPopup(false)}
+                limitType="meetings"
+                currentLimit={3}
+            />
             <MultiStepLoader loadingStates={loadingStates} loading={isPending} duration={1000} loop={false} />
             <NewAgentDialog
                 open={openNewAgentDialog}

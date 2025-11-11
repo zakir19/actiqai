@@ -1,5 +1,7 @@
-import { pgTable, text, timestamp, boolean, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, pgEnum, integer } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
+
+export const planType = pgEnum("plan_type", ["free", "monthly", "yearly", "enterprise"]);
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
@@ -15,6 +17,13 @@ export const user = pgTable("user", {
     updatedAt: timestamp("updated_at")
         .$defaultFn(() => /* @__PURE__ */ new Date())
         .notNull(),
+    // Subscription fields
+    plan: planType("plan").default("free").notNull(),
+    polarCustomerId: text("polar_customer_id"),
+    subscriptionId: text("subscription_id"),
+    subscriptionStatus: text("subscription_status"), // active, canceled, past_due, etc.
+    meetingsUsed: integer("meetings_used").default(0).notNull(),
+    agentsUsed: integer("agents_used").default(0).notNull(),
 });
 
 export const session = pgTable("session", {

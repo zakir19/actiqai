@@ -11,6 +11,7 @@ import {
     MIN_PAGE_SIZE,
 } from "@/constants";
 import { TRPCError } from "@trpc/server";
+import { checkCanCreateAgent, incrementAgentCount } from "@/modules/premium/server/procedures";
 
 export const agentsRouter = createTRPCRouter({
     update: protectedProcedure
@@ -136,10 +137,23 @@ export const agentsRouter = createTRPCRouter({
     create: protectedProcedure
         .input(agentsInsertSchema)
         .mutation(async ({ input, ctx }) => {
+            // Check if user can create an agent
+            const canCreate = await checkCanCreateAgent();
+            
+            if (!canCreate.allowed) {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: canCreate.reason,
+                });
+            }
+
             const [createdAgent] = await db
                 .insert(agents)
                 .values({ ...input, userId: ctx.auth.user.id })
                 .returning();
+
+            // Increment agent count
+            await incrementAgentCount();
 
             return createdAgent;
         }),

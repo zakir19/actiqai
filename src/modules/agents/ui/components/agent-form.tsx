@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { useTRPC } from "@/trpc/client";
 import GenerateAvatar from "@/components/generate-avatar";
@@ -13,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
+import { LimitReachedPopup } from "@/modules/premium/ui/components/limit-popup";
 
 interface AgentFormProps {
     onSuccess?: () => void;
@@ -22,8 +25,9 @@ interface AgentFormProps {
 
 export const AgentForm = ({ onSuccess, onCancel, initialValues }: AgentFormProps) => {
     const trpc = useTRPC();
-
+    const router = useRouter();
     const queryClient = useQueryClient();
+    const [showLimitPopup, setShowLimitPopup] = useState(false);
 
     const createAgent = useMutation(
         trpc.agents.create.mutationOptions({
@@ -33,7 +37,12 @@ export const AgentForm = ({ onSuccess, onCancel, initialValues }: AgentFormProps
                 onSuccess?.();
             },
             onError: (error) => {
-                toast.message(error.message);
+                // Check if this is a limit error
+                if (error.data?.code === "FORBIDDEN") {
+                    setShowLimitPopup(true);
+                } else {
+                    toast.message(error.message);
+                }
             },
         })
     );
@@ -73,46 +82,54 @@ export const AgentForm = ({ onSuccess, onCancel, initialValues }: AgentFormProps
     };
 
     return (
-        <Form {...form}>
-            <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                <GenerateAvatar seed={form.watch("name")} variant="botttsNeutral" className="border size-16" />
-                <FormField
-                    name="name"
-                    control={form.control}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Name</FormLabel>
-                            <FormControl>
-                                <Input {...field} placeholder="e.g Math tutor" />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    name="instructions"
-                    control={form.control}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Instructions</FormLabel>
-                            <FormControl>
-                                <Textarea {...field} placeholder="e.g Assistant to help with Math" />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <div className="flex justify-between gap-x-2">
-                    {onCancel && (
-                        <Button variant="ghost" disabled={isPending} type="button" onClick={() => onCancel()}>
-                            Cancel
+        <>
+            <LimitReachedPopup
+                isOpen={showLimitPopup}
+                onClose={() => setShowLimitPopup(false)}
+                limitType="agents"
+                currentLimit={2}
+            />
+            <Form {...form}>
+                <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                    <GenerateAvatar seed={form.watch("name")} variant="botttsNeutral" className="border size-16" />
+                    <FormField
+                        name="name"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Name</FormLabel>
+                                <FormControl>
+                                    <Input {...field} placeholder="e.g Math tutor" />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        name="instructions"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Instructions</FormLabel>
+                                <FormControl>
+                                    <Textarea {...field} placeholder="e.g Assistant to help with Math" />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div className="flex justify-between gap-x-2">
+                        {onCancel && (
+                            <Button variant="ghost" disabled={isPending} type="button" onClick={() => onCancel()}>
+                                Cancel
+                            </Button>
+                        )}
+                        <Button disabled={isPending} type="submit">
+                            {isEdit ? "Update" : "Create"}
                         </Button>
-                    )}
-                    <Button disabled={isPending} type="submit">
-                        {isEdit ? "Update" : "Create"}
-                    </Button>
-                </div>
-            </form>
-        </Form>
+                    </div>
+                </form>
+            </Form>
+        </>
     );
 };

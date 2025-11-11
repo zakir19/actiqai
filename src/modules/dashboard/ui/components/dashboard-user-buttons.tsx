@@ -44,23 +44,23 @@ export const DashboardUserButton = () => {
     if (isMobile) {
         return (
             <Drawer>
-                <DrawerTrigger className='rounded-lg border border-border/10 p-3 w-full flex items-center justify-between bg-white/5 hover:bg-white/10 overflow-hidden gap-x-2'>
+                <DrawerTrigger className='rounded-lg border border-border/10 p-2 w-full flex items-center justify-between bg-white/5 hover:bg-white/10 overflow-hidden gap-x-2'>
                     {data.user.image ? (
-                        <Avatar>
-                            <AvatarImage src={data.user.image} />
+                        <Avatar className='size-8 rounded-full overflow-hidden shrink-0'>
+                            <AvatarImage src={data.user.image} className='size-8 rounded-full object-cover' />
                         </Avatar>
                     ) : (
                         <GenerateAvatar
                             seed={data.user.name}
                             variant='initials'
-                            className='size-9 mr-3'
+                            className='size-8 shrink-0'
                         />
                     )}
-                    <div className='flex flex-col gap-0 5 text-left overflow-hidden flex-1 min-w-0'>
-                        <p className='text-sm truncate w-full'>
+                    <div className='flex flex-col gap-0.5 text-left overflow-hidden flex-1 min-w-0'>
+                        <p className='text-sm font-medium truncate w-full'>
                             {data.user.name}
                         </p>
-                        <p className='text-xs truncate w-full'>
+                        <p className='text-xs text-muted-foreground truncate w-full'>
                             {data.user.email}
                         </p>
                     </div>
@@ -88,21 +88,21 @@ export const DashboardUserButton = () => {
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger className='rounded-lg border border-border/10 p-3 w-full flex items-center justify-between bg-white/5 hover:bg-white/10 overflow-hidden gap-x-2'>
+            <DropdownMenuTrigger className='rounded-lg border border-border/10 p-2 w-full flex items-center justify-between bg-white/5 hover:bg-white/10 overflow-hidden gap-x-2'>
                 {data.user.image ? (
-                    <Avatar>
-                        <AvatarImage src={data.user.image} />
+                    <Avatar className='size-8 rounded-full overflow-hidden shrink-0'>
+                        <AvatarImage src={data.user.image} className='size-8 rounded-full object-cover' />
                     </Avatar>
                 ) : (
                     <GenerateAvatar
                         seed={data.user.name}
                         variant='initials'
-                        className='size-9 mr-3'
+                        className='size-8 shrink-0'
                     />
                 )}
-                <div className='flex flex-col gap-0 5 text-left overflow-hidden flex-1 min-w-0'>
-                    <p className='text-sm truncate w-full'>{data.user.name}</p>
-                    <p className='text-xs truncate w-full'>{data.user.email}</p>
+                <div className='flex flex-col gap-0.5 text-left overflow-hidden flex-1 min-w-0'>
+                    <p className='text-sm font-medium truncate w-full'>{data.user.name}</p>
+                    <p className='text-xs text-muted-foreground truncate w-full'>{data.user.email}</p>
                 </div>
                 <ChevronDownIcon className='size-4 shrink-0' />
             </DropdownMenuTrigger>

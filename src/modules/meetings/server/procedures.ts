@@ -27,6 +27,7 @@ import { agents, meetings, user } from "@/db/schema";
 import { meetingsInsertSchema, meetingsUpdateSchema } from "../schema";
 import { MeetingStatus, StreamTranscriptItem } from "../types";
 import { streamChat } from "@/lib/stream-chat";
+import { checkCanCreateMeeting, incrementMeetingCount } from "@/modules/premium/server/procedures";
 
 export const meetingsRouter = createTRPCRouter({
     generateChatToken: protectedProcedure.mutation(async ({ ctx }) => {
@@ -246,6 +247,16 @@ export const meetingsRouter = createTRPCRouter({
     create: protectedProcedure
         .input(meetingsInsertSchema)
         .mutation(async ({ input, ctx }) => {
+            // Check if user can create a meeting
+            const canCreate = await checkCanCreateMeeting();
+            
+            if (!canCreate.allowed) {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: canCreate.reason,
+                });
+            }
+
             if (!streamVideo) {
                 throw new TRPCError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -303,6 +314,10 @@ export const meetingsRouter = createTRPCRouter({
                     }),
                 },
             ]);
+
+            // Increment meeting count
+            await incrementMeetingCount();
+
             return createdMeetings;
         }),
     getOne: protectedProcedure
