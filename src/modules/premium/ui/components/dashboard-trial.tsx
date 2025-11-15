@@ -101,7 +101,7 @@ export function DashboardTrial({ data }: DashboardTrialProps) {
         {/* Warning if near limit */}
         {isFreeTier && (agentUsagePercent >= 80 || meetingUsagePercent >= 80) && (
           <div className="rounded-lg bg-orange-500/10 p-3 text-sm text-orange-600 dark:text-orange-400">
-            You're running low on your free trial. Upgrade to continue creating {agentUsagePercent >= 80 ? "agents" : "meetings"}.
+            You&apos;re running low on your free trial. Upgrade to continue creating {agentUsagePercent >= 80 ? "agents" : "meetings"}.
           </div>
         )}
       </CardContent>

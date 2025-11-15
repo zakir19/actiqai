@@ -135,7 +135,7 @@ export function LimitReachedPopup({ isOpen, onClose, limitType, currentLimit }: 
           </div>
           <CardTitle className="text-2xl font-bold">Free Trial Limit Reached</CardTitle>
           <CardDescription className="text-base">
-            You've reached the maximum of {currentLimit} {limitType} for your free trial
+            You&apos;ve reached the maximum of {currentLimit} {limitType} for your free trial
           </CardDescription>
         </CardHeader>
 

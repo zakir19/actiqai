@@ -12,7 +12,7 @@ export const HomeView = ({ usageData }: HomeViewProps) => {
         <div className="container mx-auto p-6">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold">Dashboard</h1>
-                <p className="text-muted-foreground">Welcome back! Here's your account overview.</p>
+                <p className="text-muted-foreground">Welcome back! Here&apos;s your account overview.</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
