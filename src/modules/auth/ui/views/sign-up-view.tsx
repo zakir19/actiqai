@@ -245,9 +245,9 @@ export const SignUpView = () => {
 
                     <div className='bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 items-center justify-center'>
                         <img
-                            src='/logo.svg'
-                            alt='Image'
-                            className='h-[92px] w-[92px]'
+                            src='/actiqai.png'
+                            alt='Actiq AI'
+                            className='h-[92px] w-[92px] rounded-full'
                         />
                         <p className='text-2xl font-semibold text-white'>
                             Actiq Ai
