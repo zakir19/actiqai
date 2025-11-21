@@ -40,7 +40,7 @@ export function UpgradeSuccessView({ userData }: UpgradeSuccessViewProps) {
         }
 
         console.log("✅ Subscription synced:", data);
-        
+
         // Wait a bit then reload to get updated data
         setTimeout(() => {
           window.location.reload();
@@ -269,7 +269,7 @@ export function UpgradeSuccessView({ userData }: UpgradeSuccessViewProps) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
               <Button
                 size="lg"
-                onClick={() => router.push("/dashboard")}
+                onClick={() => router.push("/meetings")}
                 className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
               >
                 Go to Dashboard

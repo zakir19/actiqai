@@ -40,15 +40,6 @@ export const AgentsView = () => {
                     transition={{ duration: 0.5 }}
                     className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6"
                 >
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            AI Agents
-                        </h1>
-                        <p className="text-muted-foreground mt-1">
-                            Create and manage your intelligent AI assistants
-                        </p>
-                    </div>
-                    
                 </motion.div>
 
                 {/* Stats Cards */}

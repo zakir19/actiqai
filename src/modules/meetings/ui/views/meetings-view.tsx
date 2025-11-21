@@ -38,14 +38,6 @@ export const MeetingsView = () => {
                     transition={{ duration: 0.5 }}
                     className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6"
                 >
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            My Meetings
-                        </h1>
-                        <p className="text-muted-foreground mt-1">
-                            Manage and join your AI-powered meetings
-                        </p>
-                    </div>
                 </motion.div>
 
                 {/* Stats Cards */}
