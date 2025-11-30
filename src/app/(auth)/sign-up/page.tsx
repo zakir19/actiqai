@@ -8,7 +8,7 @@ const SignUpPage = async () => {
     headers: await headers(),
   });
 
-  if (!!session) redirect("/");
+  if (!!session) redirect("/home");
 
   return <SignUpView />;
 };
